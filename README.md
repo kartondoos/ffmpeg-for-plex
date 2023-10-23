@@ -21,3 +21,10 @@ upzip the folders.
 make downloads dir in the bin dir
 place the scripts in the bin dir (the ffmpeg.exe should be in the same folder as the scripts)
 and run the scripts
+
+
+
+
+chrome extention
+https://myflixerx.to
+https://chrome.google.com/webstore/detail/traffic-analyser/abdegfaiochjkmedplbehndchojnkjca

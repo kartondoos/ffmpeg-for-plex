@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Set terminal title
+echo -ne "\033]0;Serie Downloader\007"
+
+# Check if ffmpeg is installed
+if ! command -v ffmpeg &> /dev/null; then
+    echo "No FFMPEG Found, is it installed and in the PATH?" >> ./error.txt
+    exit 1
+fi
+
+# Create directory if it doesn't exist
+if [ ! -d "./downloads/serie" ]; then
+    echo "Made the folder ./downloads/serie/"
+    mkdir -p "./downloads/serie"
+fi
+
+# Get series details from the user
+read -p "Serie Titel: " Titel
+read -p "Season (e.g., 01, 02): " season1
+season="s${season1}"
+echo -ne "\033]0;Serie Downloader for ${Titel} ${season}\007"
+read -p "Year: " year
+
+# Clean up and format the directory and file name
+Titel_filtered=$(echo "$Titel" | tr -d ':' | tr ' ' '_')
+Dir_Serie="./downloads/serie/${Titel_filtered}_(${year})/Season_${season1}"
+
+mkdir -p "$Dir_Serie"
+echo "Made folder $Dir_Serie"
+
+# Progress display function
+function show_progress {
+    # This function displays a progress bar based on ffmpeg's progress output
+    while read -r line; do
+        if [[ "$line" == *"out_time_ms"* ]]; then
+            # Extract the current progress time in milliseconds
+            progress_ms=$(echo "$line" | grep -oP '(?<=out_time_ms=)[0-9]+')
+            # Calculate the percentage if total duration is known
+            if [[ -n "$duration_ms" ]]; then
+                progress_percent=$((progress_ms * 100 / duration_ms))
+                printf "\rDownloading... %3d%%" "$progress_percent"
+            fi
+        elif [[ "$line" == *"Duration"* ]]; then
+            # Extract the total duration in milliseconds
+            duration_hms=$(echo "$line" | grep -oP '(?<=Duration: )[^,]*')
+            # Convert HH:MM:SS.sss format to milliseconds
+            IFS=: read -r h m s <<< "$duration_hms"
+            duration_ms=$(( (10#$h * 3600 + 10#$m * 60 + ${s%.*}) * 1000 + ${s#*.} ))
+        fi
+    done
+}
+
+# Loop function for downloading episodes
+function loop {
+    while true; do
+        read -p "Input site (.m3u8 URL): " url_link
+        read -p "Season ${season1} Episode: " episode
+        Serie_titel="${Dir_Serie}/${Titel_filtered}_(${year})_${season}e${episode}.mp4"
+
+        # Start downloading using ffmpeg and show progress
+        ffmpeg -i "$url_link" -c copy "$Serie_titel" -progress - -nostats 2>&1 | show_progress
+        echo -e "\nDownload completed!"
+
+        # Clear screen for a clean display after each download
+        clear
+    done
+}
+
+# Start the loop
+loop

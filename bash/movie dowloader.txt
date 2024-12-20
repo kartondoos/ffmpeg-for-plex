@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Make directory if not exist
+if [ ! -d "./downloads/movie" ]; then
+    echo "Made the folder ./downloads/movie/"
+    mkdir -p "./downloads/movie"
+fi
+
+function show_progress {
+    # This function displays a progress bar based on ffmpeg's progress output
+    while read -r line; do
+        if [[ "$line" == *"out_time_ms"* ]]; then
+            # Extract the current progress time in milliseconds
+            progress_ms=$(echo "$line" | grep -oP '(?<=out_time_ms=)[0-9]+')
+            # Calculate the percentage if total duration is known
+            if [[ -n "$duration_ms" ]]; then
+                progress_percent=$((progress_ms * 100 / duration_ms))
+                printf "\rDownloading... %3d%%" "$progress_percent"
+            fi
+        elif [[ "$line" == *"Duration"* ]]; then
+            # Extract the total duration in milliseconds
+            duration_hms=$(echo "$line" | grep -oP '(?<=Duration: )[^,]*')
+            # Convert HH:MM:SS.sss format to milliseconds
+            IFS=: read -r h m s <<< "$duration_hms"
+            duration_ms=$(( (10#$h * 3600 + 10#$m * 60 + ${s%.*}) * 1000 + ${s#*.} ))
+        fi
+    done
+}
+
+function loop {
+    read -p "Site URL (.m3u8): " url_link
+    read -p "Movie name: " movie_name
+    read -p "Year: " year
+    movie_name_filtered=$(echo "$movie_name" | tr ' ' '_' | tr -d ':')
+    Dir_movie="./downloads/movie/${movie_name_filtered}_(${year})"
+
+    mkdir -p "$Dir_movie" >/dev/null
+
+    movie_name_join="${Dir_movie}/${movie_name_filtered}_(${year}).mp4"
+    echo "Made folder $Dir_movie"
+    
+    # Start ffmpeg and pipe its stderr output to the progress display function
+    ffmpeg -i "$url_link" -c copy "$movie_name_join" -progress - -nostats 2>&1 | show_progress
+    echo -e "\nDownload completed!"
+
+    # Move to the Plex directory and clean up
+    mv "$movie_name_join" /var/lib/plexmediaserver/Library/Movies/
+    rm -r /home/user/downloads/*
+    clear
+    loop
+}
+
+loop

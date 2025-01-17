@@ -48,3 +48,9 @@ check diskspace in GB format: ```df -h```
    - https://vidsrc.xyz/api/ - info how to use the API
    - https://vidsrc.xyz/embed/tv/{id}
    - https://vidsrc.xyz/embed/movie/{id}
+   - 
+   - https://www.superembed.stream/index.html - info how to use the API
+   - https://multiembed.mov/?video_id={IMDB_ID}
+   - https://multiembed.mov/?video_id={TMDB_ID}&tmdb=1
+   - https://multiembed.mov/?video_id={IMDB_ID}&s=1&e=2
+   - https://multiembed.mov/?video_id={TMDB_ID}&tmdb=1&s=1&e=2

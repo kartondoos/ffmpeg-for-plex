@@ -30,7 +30,11 @@
 3. Copy ffmpeg.exe from the zip in the folder where the ps1 scrips are located
 
 ## Usefull linux commands
-check diskspace in GB format: ```df -h```
+check diskspace in GB format: ```df -h```<br>
+```ufw status numbered```<br>
+```sudo ufw allow 22 #for ssh```<br>
+```sudo ufw allow out 443/udp  #for openvpnserver```<br>
+Solves UFW /masquerade problems ```pivpn -d``` 
 
 ## Tools and links
 1. Chrome extentions to get the m3u8 link

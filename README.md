@@ -35,6 +35,7 @@ check diskspace in GB format: ```df -h```<br>
 ```sudo ufw allow 22 #for ssh```<br>
 ```sudo ufw allow out 443/udp  #for openvpnserver```<br>
 Solves UFW /masquerade problems ```pivpn -d``` 
+Saves the config for next reboot```sudo iptables-save -f /etc/iptables/rules.v4```
 
 ## Tools and links
 1. Chrome extentions to get the m3u8 link
